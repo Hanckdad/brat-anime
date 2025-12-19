@@ -1,107 +1,122 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Anime Brat Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap");
+
 body {
   margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #5a189a, #240046);
+  font-family: Inter, sans-serif;
+  height: 100vh;
+  background:
+    linear-gradient(rgba(90,0,150,.7), rgba(0,0,0,.9)),
+    url("https://images.unsplash.com/photo-1580477667995-2b94f01c9516?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  overflow: hidden;
+}
+
+.particles::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.25) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: move 20s linear infinite;
+}
+
+@keyframes move {
+  from { transform: translateY(0); }
+  to { transform: translateY(-120px); }
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
-  color: white;
 }
 
-/* CARD */
-.app {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  padding: 20px;
+.card {
+  background: rgba(0,0,0,.6);
+  padding: 30px;
   border-radius: 20px;
-  width: 360px;
+  width: 340px;
+  text-align: center;
 }
 
-/* PREVIEW 1:1 */
-.preview-box {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: #000;
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.preview-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 1:1 tampil rapi */
-}
-
-/* FORM */
-input, select, button {
+input {
   width: 100%;
   padding: 10px;
-  margin: 6px 0;
-  border-radius: 12px;
+  border-radius: 10px;
   border: none;
+  margin-bottom: 10px;
 }
 
 button {
-  background: #c77dff;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
   font-weight: bold;
   cursor: pointer;
+}
+
+img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin-top: 15px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 </style>
 </head>
 
 <body>
+<div class="particles"></div>
 
-<div class="app">
-  <h2 style="text-align:center;">Anime Brat Generator</h2>
+<div class="container">
+  <div class="card">
+    <h2>Anime Brat Generator</h2>
 
-  <!-- PREVIEW -->
-  <div class="preview-box">
+    <input id="text" placeholder="Teks brat..." />
+    <input id="size" type="number" value="80" />
+
+    <button onclick="generate()">Generate</button>
+
     <img id="preview" />
-  </div>
 
-  <!-- INPUT -->
-  <input id="text" placeholder="Teks..." value="HALO">
-  <button onclick="generate()">Generate</button>
-  <button onclick="download()">Download 1:1</button>
+    <button onclick="download()">Download PNG</button>
+  </div>
 </div>
 
 <script>
-const BASE_URL = "https://sayaka-miki-brat-anime.vercel.app/api/generate";
-let lastImageUrl = "";
+let lastUrl = "";
 
 function generate() {
   const text = document.getElementById("text").value;
-  const template = Math.floor(Math.random() * 3) + 1;
+  const size = document.getElementById("size").value;
 
-  const url = `${BASE_URL}?text=${encodeURIComponent(text)}&template=${template}`;
-  lastImageUrl = url;
+  lastUrl = `/api/generate?text=${encodeURIComponent(text)}&size=${size}`;
 
-  const img = document.getElementById("preview");
-  img.src = url;
+  document.getElementById("preview").src = lastUrl;
 }
 
 function download() {
-  if (!lastImageUrl) {
-    alert("Generate dulu!");
-    return;
-  }
+  if (!lastUrl) return alert("Generate dulu!");
 
-  // DIRECT DOWNLOAD — TIDAK RESIZE
   const a = document.createElement("a");
-  a.href = lastImageUrl;
-  a.download = "anime-brat-1x1.png";
-  document.body.appendChild(a);
+  a.href = lastUrl;
+  a.download = "anime-brat.png";
   a.click();
-  document.body.removeChild(a);
 }
 </script>
 
