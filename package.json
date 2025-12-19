@@ -1,0 +1,7 @@
+{
+  "name": "anime-brat-svg",
+  "private": true,
+  "dependencies": {
+    "@vercel/og": "^0.6.2"
+  }
+}
