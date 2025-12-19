@@ -38,13 +38,13 @@ export default function handler(req, res) {
      width="800" height="600"
      viewBox="0 0 800 600">
 
-  <!-- Background image -->
+  <!-- Background anime -->
   <image
     href="data:image/png;base64,${imageBase64}"
     width="800"
     height="600"/>
 
-  <!-- Text with outline -->
+  <!-- Plain black text -->
   <text
     x="400"
     y="460"
@@ -52,10 +52,7 @@ export default function handler(req, res) {
     dominant-baseline="middle"
     font-size="${size}"
     font-family="Arial, Helvetica, sans-serif"
-    fill="#ffffff"
-    stroke="#000000"
-    stroke-width="2"
-    paint-order="stroke">
+    fill="#000000">
     ${text}
   </text>
 
