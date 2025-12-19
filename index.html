@@ -1,95 +1,240 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>Anime Brat Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-      text-align: center;
-    }
-    canvas {
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      max-width: 100%;
-    }
-    input, select, button {
-      padding: 10px;
-      margin: 5px;
-      font-size: 16px;
-    }
-  </style>
-</head>
-<body>
-  <h2>Anime Brat Text Generator</h2>  <input type="text" id="text" placeholder="Ketik teks di sini" size="40" />
-  <br /><label>Ukuran Teks:</label> <input type="number" id="fontSize" value="32" min="10" max="80" /> px <br />
+<meta charset="UTF-8">
+<title>Anime Brat Generator</title>
 
-<label>Font:</label> <select id="fontFamily"> <option value="Arial">Arial</option> <option value="Comic Sans MS">Comic Sans</option> <option value="Courier New">Courier New</option> <option value="Georgia">Georgia</option> <option value="Verdana">Verdana</option> </select> <br />
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  overflow-x: hidden;
+}
+
+#particles-js {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+/* HERO */
+.hero {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  margin-bottom: 5px;
+  background: linear-gradient(90deg, #e0aaff, #9d4edd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 25px rgba(180,90,255,0.8);
+}
+
+.hero p {
+  color: #d0bfff;
+  opacity: 0.9;
+  font-size: 15px;
+}
+
+/* CARD */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 420px;
+  margin: 25px auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 0 30px rgba(140,0,255,0.35);
+  text-align: center;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+}
+
+input, select {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  outline: none;
+}
+
+button {
+  background: linear-gradient(135deg, #9d4edd, #5a189a);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(180,90,255,0.9);
+}
+
+img {
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 14px;
+  box-shadow: 0 0 20px rgba(160,70,255,0.7);
+}
+
+/* DOCS */
+.docs {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 25px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(160,70,255,0.4);
+}
+
+.docs h2 {
+  color: #e0aaff;
+  margin-bottom: 10px;
+}
+
+.docs code {
+  display: block;
+  background: rgba(255,255,255,0.1);
+  padding: 12px;
+  border-radius: 10px;
+  color: #e0c3ff;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-size: 13px;
+}
+
+.footer {
+  text-align: center;
+  margin-bottom: 30px;
+  opacity: 0.6;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="particles-js"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Anime Brat Generator</h1>
+  <p>Generate anime holding text image • Scrapable REST API</p>
+</div>
+
+<!-- GENERATOR -->
+<div class="container">
+  <input id="text" placeholder="Teks" value="Halo Dunia">
+  <input type="number" id="size" value="32" min="10" max="80">
+
+  <select id="font">
+    <option>Arial</option>
+    <option>Comic Sans MS</option>
+    <option>Verdana</option>
+    <option>Courier New</option>
+  </select>
 
   <select id="template">
     <option value="1">Anime 1</option>
     <option value="2">Anime 2</option>
     <option value="3">Anime 3</option>
-  </select>  <br />
+  </select>
+
   <button onclick="generate()">Generate</button>
-  <button onclick="download()">Download</button>  <br />
-  <canvas id="canvas" width="800" height="600"></canvas>  <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+  <img id="result">
+</div>
 
-    const images = {
-      1: 'anime1.png',
-      2: 'anime2.png',
-      3: 'anime3.png'
-    };
+<!-- DOCS -->
+<div class="docs">
+  <h2>📘 API Documentation</h2>
+  <p><b>Endpoint:</b></p>
+  <code>GET /api/generate</code>
 
-    function generate() {
-      const text = document.getElementById('text').value;
-      const template = document.getElementById('template').value;
-      const fontSize = document.getElementById('fontSize').value;
-      const fontFamily = document.getElementById('fontFamily').value;
+  <p><b>Query Parameters:</b></p>
+  <code>
+text=Halo Dunia<br>
+size=32<br>
+font=Arial<br>
+template=1
+  </code>
 
-      const img = new Image();
-      img.src = images[template];
+  <p><b>Example Request:</b></p>
+  <code>
+/api/generate?text=HELLO&size=40&font=Arial&template=2
+  </code>
 
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  <p><b>Response:</b></p>
+  <code>Content-Type: image/png</code>
 
-        ctx.font = `${fontSize}px ${fontFamily}`;
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+  <p><b>Scrape Example (curl):</b></p>
+  <code>
+curl "http://localhost:3000/api/generate?text=SCRAPE+ME" -o image.png
+  </code>
+</div>
 
-        wrapText(text, canvas.width / 2, canvas.height * 0.65, 500, fontSize + 6);
-      };
+<div class="footer">
+  © Anime Brat Generator • API Ready
+</div>
+
+<script>
+function generate() {
+  const text = encodeURIComponent(textEl.value);
+  result.src =
+    `/api/generate?text=${text}` +
+    `&size=${size.value}` +
+    `&font=${font.value}` +
+    `&template=${template.value}`;
+}
+
+const textEl = document.getElementById("text");
+const size = document.getElementById("size");
+const font = document.getElementById("font");
+const template = document.getElementById("template");
+const result = document.getElementById("result");
+
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 90 },
+    color: { value: "#b517ff" },
+    shape: { type: "circle" },
+    opacity: { value: 0.6 },
+    size: { value: 3 },
+    line_linked: {
+      enable: true,
+      distance: 140,
+      color: "#9d4edd",
+      opacity: 0.4
+    },
+    move: { enable: true, speed: 2 }
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "repulse" }
     }
+  },
+  retina_detect: true
+});
+</script>
 
-    function wrapText(text, x, y, maxWidth, lineHeight) {
-      const words = text.split(' ');
-      let line = '';
-      let offsetY = 0;
-
-      for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && i > 0) {
-          ctx.fillText(line, x, y + offsetY);
-          line = words[i] + ' ';
-          offsetY += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, x, y + offsetY);
-    }
-
-    function download() {
-      const link = document.createElement('a');
-      link.download = 'anime-brat.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    }
-  </script></body>
+</body>
 </html>
