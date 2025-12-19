@@ -9,54 +9,100 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// serve index.html
+/* =============================
+   CONFIG
+============================= */
+
+// font yang diizinkan (anti crash)
+const ALLOWED_FONTS = [
+  "Arial",
+  "Comic Sans MS",
+  "Verdana",
+  "Courier New"
+];
+
+// ukuran canvas
+const WIDTH = 800;
+const HEIGHT = 600;
+
+// serve index.html + assets
 app.use(express.static(__dirname));
 
-/*
-  API GENERATE IMAGE
-  SCRAPABLE ✔
-  /api/generate?text=HALO&size=40&font=Arial&template=1
-*/
+/* =============================
+   API GENERATE (SCRAPABLE)
+============================= */
 app.get("/api/generate", async (req, res) => {
   try {
-    const text = req.query.text || "Halo Dunia";
-    const size = parseInt(req.query.size) || 32;
-    const font = req.query.font || "Arial";
-    const template = req.query.template || "1";
+    // ==== sanitize input ====
+    const text =
+      typeof req.query.text === "string" && req.query.text.trim()
+        ? req.query.text.slice(0, 200)
+        : "Halo Dunia";
 
-    const canvas = createCanvas(800, 600);
+    const size = Math.min(
+      Math.max(parseInt(req.query.size) || 32, 10),
+      80
+    );
+
+    const font = ALLOWED_FONTS.includes(req.query.font)
+      ? req.query.font
+      : "Arial";
+
+    const template = ["1", "2", "3"].includes(req.query.template)
+      ? req.query.template
+      : "1";
+
+    // ==== canvas ====
+    const canvas = createCanvas(WIDTH, HEIGHT);
     const ctx = canvas.getContext("2d");
 
-    // load image dari ROOT
+    // ==== load image dari root ====
     const imagePath = path.join(__dirname, `anime${template}.png`);
     const bg = await loadImage(imagePath);
 
-    ctx.drawImage(bg, 0, 0, 800, 600);
+    ctx.drawImage(bg, 0, 0, WIDTH, HEIGHT);
 
-    ctx.font = `${size}px ${font}`;
+    // ==== text style (ANTI ERROR FONT SPASI) ====
+    ctx.font = `${size}px "${font}"`;
     ctx.fillStyle = "#000";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    wrapText(ctx, text, 400, 420, 520, size + 6);
+    drawWrappedText(
+      ctx,
+      text,
+      WIDTH / 2,
+      HEIGHT * 0.7,
+      WIDTH - 160,
+      size + 6
+    );
 
+    // ==== response ====
     res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "no-store");
     canvas.createPNGStream().pipe(res);
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Gagal generate image" });
+    console.error("GENERATE ERROR:", err);
+    res.status(500).json({
+      error: "Failed to generate image"
+    });
   }
 });
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+/* =============================
+   TEXT WRAP FUNCTION
+============================= */
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let line = "";
   let offsetY = 0;
 
   for (let i = 0; i < words.length; i++) {
     const testLine = line + words[i] + " ";
-    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+    const metrics = ctx.measureText(testLine);
+
+    if (metrics.width > maxWidth && i > 0) {
       ctx.fillText(line, x, y + offsetY);
       line = words[i] + " ";
       offsetY += lineHeight;
@@ -64,9 +110,15 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
       line = testLine;
     }
   }
+
   ctx.fillText(line, x, y + offsetY);
 }
 
+/* =============================
+   START SERVER
+============================= */
 app.listen(PORT, () => {
-  console.log(`🔥 RUNNING http://localhost:${PORT}`);
+  console.log(`🔥 Anime Brat Generator running`);
+  console.log(`🌐 http://localhost:${PORT}`);
+  console.log(`📡 API  http://localhost:${PORT}/api/generate`);
 });
