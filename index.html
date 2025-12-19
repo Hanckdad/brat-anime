@@ -8,120 +8,100 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg,#240046,#5a189a,#9d4edd);
-  color: white;
-  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #5a189a, #240046);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: Arial, sans-serif;
+  color: white;
 }
 
-.panel {
-  width: 380px;
-  background: rgba(255,255,255,0.15);
+/* CARD */
+.app {
+  background: rgba(255,255,255,0.12);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 0 40px rgba(0,0,0,.4);
+  border-radius: 20px;
+  width: 360px;
 }
 
-h1 {
-  text-align: center;
-  margin-top: 0;
+/* PREVIEW 1:1 */
+.preview-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 12px;
 }
 
+.preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 1:1 tampil rapi */
+}
+
+/* FORM */
 input, select, button {
   width: 100%;
   padding: 10px;
   margin: 6px 0;
   border-radius: 12px;
   border: none;
-  outline: none;
 }
 
 button {
   background: #c77dff;
-  color: #240046;
   font-weight: bold;
   cursor: pointer;
-}
-
-button:hover {
-  opacity: .9;
-}
-
-img {
-  width: 100%;
-  margin-top: 10px;
-  background: white;
-  border-radius: 14px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="panel">
-  <h1>Anime Brat Generator</h1>
+<div class="app">
+  <h2 style="text-align:center;">Anime Brat Generator</h2>
 
-  <input id="text" placeholder="Teks..." value="Halo Dunia">
-  <input id="size" type="number" value="32" min="16" max="64">
+  <!-- PREVIEW -->
+  <div class="preview-box">
+    <img id="preview" />
+  </div>
 
-  <select id="template">
-    <option value="1">Anime 1</option>
-    <option value="2">Anime 2</option>
-    <option value="3">Anime 3</option>
-  </select>
-
+  <!-- INPUT -->
+  <input id="text" placeholder="Teks..." value="HALO">
   <button onclick="generate()">Generate</button>
-
-  <img id="preview">
-
-  <button onclick="download('png')">Download PNG</button>
-  <button onclick="download('jpg')">Download JPG</button>
+  <button onclick="download()">Download 1:1</button>
 </div>
 
 <script>
-function generate() {
-  const text = encodeURIComponent(
-    document.getElementById("text").value
-  );
-  const size = document.getElementById("size").value;
-  const template = document.getElementById("template").value;
+const BASE_URL = "https://sayaka-miki-brat-anime.vercel.app/api/generate";
+let lastImageUrl = "";
 
-  document.getElementById("preview").src =
-    `/api/generate?text=${text}&size=${size}&template=${template}`;
+function generate() {
+  const text = document.getElementById("text").value;
+  const template = Math.floor(Math.random() * 3) + 1;
+
+  const url = `${BASE_URL}?text=${encodeURIComponent(text)}&template=${template}`;
+  lastImageUrl = url;
+
+  const img = document.getElementById("preview");
+  img.src = url;
 }
 
-async function download(type) {
-  const svgUrl = document.getElementById("preview").src;
-  if (!svgUrl) return alert("Generate dulu!");
+function download() {
+  if (!lastImageUrl) {
+    alert("Generate dulu!");
+    return;
+  }
 
-  const svgText = await fetch(svgUrl).then(r => r.text());
-  const svgBlob = new Blob([svgText], { type: "image/svg+xml" });
-  const svgObjectUrl = URL.createObjectURL(svgBlob);
-
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    const mime = type === "jpg" ? "image/jpeg" : "image/png";
-    const dataUrl = canvas.toDataURL(mime, 0.95);
-
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `anime-brat.${type}`;
-    a.click();
-
-    URL.revokeObjectURL(svgObjectUrl);
-  };
-
-  img.src = svgObjectUrl;
+  // DIRECT DOWNLOAD — TIDAK RESIZE
+  const a = document.createElement("a");
+  a.href = lastImageUrl;
+  a.download = "anime-brat-1x1.png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 </script>
 
