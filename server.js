@@ -9,100 +9,92 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-/* =============================
-   CONFIG
-============================= */
+/* =======================
+   KONFIGURASI AMAN
+======================= */
+const WIDTH = 800;
+const HEIGHT = 600;
 
-// font yang diizinkan (anti crash)
 const ALLOWED_FONTS = [
   "Arial",
-  "Comic Sans MS",
   "Verdana",
   "Courier New"
 ];
 
-// ukuran canvas
-const WIDTH = 800;
-const HEIGHT = 600;
+const ALLOWED_TEMPLATES = ["1", "2", "3"];
 
-// serve index.html + assets
+/* =======================
+   STATIC FILE
+======================= */
 app.use(express.static(__dirname));
 
-/* =============================
-   API GENERATE (SCRAPABLE)
-============================= */
+/* =======================
+   API GENERATOR (SCRAPABLE)
+   /api/generate?text=HALO&size=32&font=Arial&template=1
+======================= */
 app.get("/api/generate", async (req, res) => {
   try {
-    // ==== sanitize input ====
+    // ===== TEXT =====
     const text =
       typeof req.query.text === "string" && req.query.text.trim()
-        ? req.query.text.slice(0, 200)
+        ? req.query.text.slice(0, 150)
         : "Halo Dunia";
 
-    const size = Math.min(
-      Math.max(parseInt(req.query.size) || 32, 10),
-      80
-    );
+    // ===== SIZE =====
+    let size = parseInt(req.query.size);
+    if (isNaN(size)) size = 32;
+    size = Math.min(Math.max(size, 14), 72);
 
+    // ===== FONT =====
     const font = ALLOWED_FONTS.includes(req.query.font)
       ? req.query.font
       : "Arial";
 
-    const template = ["1", "2", "3"].includes(req.query.template)
+    // ===== TEMPLATE =====
+    const template = ALLOWED_TEMPLATES.includes(req.query.template)
       ? req.query.template
       : "1";
 
-    // ==== canvas ====
+    // ===== CANVAS =====
     const canvas = createCanvas(WIDTH, HEIGHT);
     const ctx = canvas.getContext("2d");
 
-    // ==== load image dari root ====
-    const imagePath = path.join(__dirname, `anime${template}.png`);
-    const bg = await loadImage(imagePath);
+    // ===== LOAD IMAGE =====
+    const imgPath = path.join(__dirname, `anime${template}.png`);
+    const bg = await loadImage(imgPath);
 
     ctx.drawImage(bg, 0, 0, WIDTH, HEIGHT);
 
-    // ==== text style (ANTI ERROR FONT SPASI) ====
+    // ===== TEXT STYLE (ANTI ERROR) =====
     ctx.font = `${size}px "${font}"`;
     ctx.fillStyle = "#000";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    drawWrappedText(
-      ctx,
-      text,
-      WIDTH / 2,
-      HEIGHT * 0.7,
-      WIDTH - 160,
-      size + 6
-    );
+    drawText(ctx, text, WIDTH / 2, HEIGHT * 0.7, WIDTH - 160, size + 8);
 
-    // ==== response ====
+    // ===== RESPONSE =====
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "no-store");
     canvas.createPNGStream().pipe(res);
 
   } catch (err) {
-    console.error("GENERATE ERROR:", err);
-    res.status(500).json({
-      error: "Failed to generate image"
-    });
+    console.error("ERROR:", err);
+    res.status(500).json({ error: "Generate failed" });
   }
 });
 
-/* =============================
+/* =======================
    TEXT WRAP FUNCTION
-============================= */
-function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+======================= */
+function drawText(ctx, text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let line = "";
   let offsetY = 0;
 
   for (let i = 0; i < words.length; i++) {
     const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > maxWidth && i > 0) {
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
       ctx.fillText(line, x, y + offsetY);
       line = words[i] + " ";
       offsetY += lineHeight;
@@ -110,15 +102,14 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
       line = testLine;
     }
   }
-
   ctx.fillText(line, x, y + offsetY);
 }
 
-/* =============================
+/* =======================
    START SERVER
-============================= */
+======================= */
 app.listen(PORT, () => {
-  console.log(`🔥 Anime Brat Generator running`);
+  console.log("✅ SERVER RUNNING");
   console.log(`🌐 http://localhost:${PORT}`);
-  console.log(`📡 API  http://localhost:${PORT}/api/generate`);
+  console.log(`📡 http://localhost:${PORT}/api/generate`);
 });
