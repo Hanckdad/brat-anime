@@ -1,27 +1,23 @@
 import { ImageResponse } from "@vercel/og";
-import fs from "fs";
-import path from "path";
 
 export const config = {
-  runtime: "edge"
+  runtime: "edge",
 };
 
-export default async function handler(req) {
+export default function handler(req) {
   const { searchParams } = new URL(req.url);
 
-  const text = (searchParams.get("text") || "Halo Dunia").slice(0, 80);
-  const size = Math.min(
-    Math.max(parseInt(searchParams.get("size")) || 40, 16),
-    80
-  );
+  const text = searchParams.get("text") || "BRAT";
+  const size = Number(searchParams.get("size")) || 80;
 
-  const template = ["1", "2", "3"].includes(searchParams.get("template"))
-    ? searchParams.get("template")
-    : String(Math.floor(Math.random() * 3) + 1);
+  const templates = [
+    "/anime1.png",
+    "/anime2.png",
+    "/anime3.png",
+  ];
 
-  // ===== LOAD IMAGE =====
-  const imgPath = path.join(process.cwd(), `anime${template}.png`);
-  const imgBase64 = fs.readFileSync(imgPath).toString("base64");
+  const bg =
+    templates[Math.floor(Math.random() * templates.length)];
 
   return new ImageResponse(
     (
@@ -29,27 +25,23 @@ export default async function handler(req) {
         style={{
           width: "1024px",
           height: "1024px",
-          position: "relative",
-          backgroundImage: `url(data:image/png;base64,${imgBase64})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center"
+          justifyContent: "center",
+          backgroundImage: `url(${bg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        {/* TEXT */}
         <div
           style={{
-            position: "absolute",
-            bottom: "140px",
-            width: "100%",
-            textAlign: "center",
-            fontSize: `${size}px`,
+            fontSize: size,
+            fontWeight: "900",
             color: "#000",
-            fontFamily: "Arial, Helvetica, sans-serif",
-            padding: "0 80px",
-            lineHeight: 1.2
+            textAlign: "center",
+            maxWidth: "80%",
+            lineHeight: 1.2,
+            wordBreak: "break-word",
           }}
         >
           {text}
@@ -58,7 +50,7 @@ export default async function handler(req) {
     ),
     {
       width: 1024,
-      height: 1024
+      height: 1024,
     }
   );
 }
