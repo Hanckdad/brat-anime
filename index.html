@@ -4,67 +4,56 @@
 <meta charset="UTF-8">
 <title>Anime Brat Generator</title>
 
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
 <style>
 body {
   margin: 0;
   min-height: 100vh;
+  background: linear-gradient(135deg,#240046,#5a189a,#9d4edd);
+  color: white;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
-  color: #fff;
-  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#particles-js {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-}
-
-.hero {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  margin-top: 50px;
-}
-
-.hero h1 {
-  font-size: 42px;
-  background: linear-gradient(90deg,#e0aaff,#9d4edd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.card {
-  position: relative;
-  z-index: 2;
-  max-width: 420px;
-  margin: 25px auto;
+.panel {
+  width: 380px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   padding: 20px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
+  box-shadow: 0 0 40px rgba(0,0,0,.4);
+}
+
+h1 {
   text-align: center;
+  margin-top: 0;
 }
 
 input, select, button {
   width: 100%;
   padding: 10px;
   margin: 6px 0;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
+  outline: none;
 }
 
 button {
-  background: linear-gradient(135deg,#9d4edd,#5a189a);
-  color: #fff;
+  background: #c77dff;
+  color: #240046;
+  font-weight: bold;
   cursor: pointer;
+}
+
+button:hover {
+  opacity: .9;
 }
 
 img {
   width: 100%;
-  margin-top: 15px;
+  margin-top: 10px;
+  background: white;
   border-radius: 14px;
 }
 </style>
@@ -72,22 +61,11 @@ img {
 
 <body>
 
-<div id="particles-js"></div>
-
-<div class="hero">
+<div class="panel">
   <h1>Anime Brat Generator</h1>
-  <p>Scrapable REST API</p>
-</div>
 
-<div class="card">
-  <input id="text" value="Halo Dunia">
-  <input id="size" type="number" value="32" min="14" max="72">
-
-  <select id="font">
-    <option>Arial</option>
-    <option>Verdana</option>
-    <option>Courier New</option>
-  </select>
+  <input id="text" placeholder="Teks..." value="Halo Dunia">
+  <input id="size" type="number" value="32" min="16" max="64">
 
   <select id="template">
     <option value="1">Anime 1</option>
@@ -96,33 +74,55 @@ img {
   </select>
 
   <button onclick="generate()">Generate</button>
-  <img id="result">
+
+  <img id="preview">
+
+  <button onclick="download('png')">Download PNG</button>
+  <button onclick="download('jpg')">Download JPG</button>
 </div>
 
 <script>
 function generate() {
-  result.src =
-    `/api/generate?text=${encodeURIComponent(text.value)}` +
-    `&size=${size.value}` +
-    `&font=${font.value}` +
-    `&template=${template.value}`;
+  const text = encodeURIComponent(
+    document.getElementById("text").value
+  );
+  const size = document.getElementById("size").value;
+  const template = document.getElementById("template").value;
+
+  document.getElementById("preview").src =
+    `/api/generate?text=${text}&size=${size}&template=${template}`;
 }
 
-const text = document.getElementById("text");
-const size = document.getElementById("size");
-const font = document.getElementById("font");
-const template = document.getElementById("template");
-const result = document.getElementById("result");
+async function download(type) {
+  const svgUrl = document.getElementById("preview").src;
+  if (!svgUrl) return alert("Generate dulu!");
 
-particlesJS("particles-js", {
-  particles: {
-    number: { value: 80 },
-    color: { value: "#b517ff" },
-    size: { value: 3 },
-    move: { speed: 2 },
-    line_linked: { enable: true, color: "#9d4edd" }
-  }
-});
+  const svgText = await fetch(svgUrl).then(r => r.text());
+  const svgBlob = new Blob([svgText], { type: "image/svg+xml" });
+  const svgObjectUrl = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    const mime = type === "jpg" ? "image/jpeg" : "image/png";
+    const dataUrl = canvas.toDataURL(mime, 0.95);
+
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `anime-brat.${type}`;
+    a.click();
+
+    URL.revokeObjectURL(svgObjectUrl);
+  };
+
+  img.src = svgObjectUrl;
+}
 </script>
 
 </body>
