@@ -12,13 +12,14 @@ export default async function handler(req) {
   const text = (searchParams.get("text") || "Halo Dunia").slice(0, 80);
   const size = Math.min(
     Math.max(parseInt(searchParams.get("size")) || 40, 16),
-    64
+    80
   );
 
   const template = ["1", "2", "3"].includes(searchParams.get("template"))
     ? searchParams.get("template")
     : String(Math.floor(Math.random() * 3) + 1);
 
+  // ===== LOAD IMAGE =====
   const imgPath = path.join(process.cwd(), `anime${template}.png`);
   const imgBase64 = fs.readFileSync(imgPath).toString("base64");
 
@@ -26,8 +27,8 @@ export default async function handler(req) {
     (
       <div
         style={{
-          width: "800px",
-          height: "600px",
+          width: "1024px",
+          height: "1024px",
           position: "relative",
           backgroundImage: `url(data:image/png;base64,${imgBase64})`,
           backgroundSize: "cover",
@@ -37,15 +38,18 @@ export default async function handler(req) {
           justifyContent: "center"
         }}
       >
+        {/* TEXT */}
         <div
           style={{
             position: "absolute",
-            bottom: "80px",
+            bottom: "140px",
             width: "100%",
             textAlign: "center",
             fontSize: `${size}px`,
             color: "#000",
-            fontFamily: "Arial, Helvetica, sans-serif"
+            fontFamily: "Arial, Helvetica, sans-serif",
+            padding: "0 80px",
+            lineHeight: 1.2
           }}
         >
           {text}
@@ -53,8 +57,8 @@ export default async function handler(req) {
       </div>
     ),
     {
-      width: 800,
-      height: 600
+      width: 1024,
+      height: 1024
     }
   );
 }
