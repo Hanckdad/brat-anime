@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anime Brat Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    input, select, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Anime Brat Text Generator</h2>  <input type="text" id="text" placeholder="Ketik teks di sini" size="40" />
+  <br />  <select id="template">
+    <option value="1">Anime 1 (Yuru Style)</option>
+    <option value="2">Anime 2 (Miku Style)</option>
+    <option value="3">Anime 3 (Kanna Style)</option>
+  </select>  <br />
+  <button onclick="generate()">Generate</button>
+  <button onclick="download()">Download</button>  <br />
+  <canvas id="canvas" width="800" height="600"></canvas>  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const images = {
+      1: 'anime1.png',
+      2: 'anime2.png',
+      3: 'anime3.png'
+    };
+
+    function generate() {
+      const text = document.getElementById('text').value;
+      const template = document.getElementById('template').value;
+      const img = new Image();
+      img.src = images[template];
+
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        ctx.font = '32px Arial';
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        wrapText(text, canvas.width / 2, canvas.height * 0.65, 500, 36);
+      };
+    }
+
+    function wrapText(text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      let offsetY = 0;
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(line, x, y + offsetY);
+          line = words[i] + ' ';
+          offsetY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y + offsetY);
+    }
+
+    function download() {
+      const link = document.createElement('a');
+      link.download = 'anime-brat.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script></body>
+</html>
