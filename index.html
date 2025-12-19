@@ -23,10 +23,14 @@
 </head>
 <body>
   <h2>Anime Brat Text Generator</h2>  <input type="text" id="text" placeholder="Ketik teks di sini" size="40" />
-  <br />  <select id="template">
-    <option value="1">Anime 1 (Yuru Style)</option>
-    <option value="2">Anime 2 (Miku Style)</option>
-    <option value="3">Anime 3 (Kanna Style)</option>
+  <br /><label>Ukuran Teks:</label> <input type="number" id="fontSize" value="32" min="10" max="80" /> px <br />
+
+<label>Font:</label> <select id="fontFamily"> <option value="Arial">Arial</option> <option value="Comic Sans MS">Comic Sans</option> <option value="Courier New">Courier New</option> <option value="Georgia">Georgia</option> <option value="Verdana">Verdana</option> </select> <br />
+
+  <select id="template">
+    <option value="1">Anime 1</option>
+    <option value="2">Anime 2</option>
+    <option value="3">Anime 3</option>
   </select>  <br />
   <button onclick="generate()">Generate</button>
   <button onclick="download()">Download</button>  <br />
@@ -43,6 +47,9 @@
     function generate() {
       const text = document.getElementById('text').value;
       const template = document.getElementById('template').value;
+      const fontSize = document.getElementById('fontSize').value;
+      const fontFamily = document.getElementById('fontFamily').value;
+
       const img = new Image();
       img.src = images[template];
 
@@ -50,12 +57,12 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        ctx.font = '32px Arial';
+        ctx.font = `${fontSize}px ${fontFamily}`;
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        wrapText(text, canvas.width / 2, canvas.height * 0.65, 500, 36);
+        wrapText(text, canvas.width / 2, canvas.height * 0.65, 500, fontSize + 6);
       };
     }
 
