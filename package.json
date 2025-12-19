@@ -1,11 +1,7 @@
 {
-  "name": "anime-brat-svg",
+  "name": "brat-anime",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "build": "echo build"
-  },
   "dependencies": {
     "@vercel/og": "^0.6.2"
   }
