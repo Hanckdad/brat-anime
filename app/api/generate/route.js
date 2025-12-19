@@ -14,8 +14,7 @@ export async function GET(req) {
     "/anime3.png"
   ];
 
-  const background =
-    templates[Math.floor(Math.random() * templates.length)];
+  const bg = templates[Math.floor(Math.random() * templates.length)];
 
   return new ImageResponse(
     (
@@ -24,26 +23,19 @@ export async function GET(req) {
           width: "1024px",
           height: "1024px",
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
-          backgroundImage: `url(${background})`,
+          justifyContent: "center",
+          backgroundImage: `url(${bg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          color: "black",
+          fontSize: size,
+          fontWeight: 900,
           textAlign: "center",
           padding: "80px"
         }}
       >
-        <div
-          style={{
-            fontSize: size,
-            fontWeight: 900,
-            color: "black",
-            lineHeight: 1.2,
-            wordBreak: "break-word"
-          }}
-        >
-          {text}
-        </div>
+        {text}
       </div>
     ),
     {
