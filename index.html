@@ -7,14 +7,12 @@
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
 <style>
-* { box-sizing: border-box; }
-
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
   color: #fff;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   overflow-x: hidden;
 }
 
@@ -24,7 +22,6 @@ body {
   z-index: 1;
 }
 
-/* HERO */
 .hero {
   position: relative;
   z-index: 2;
@@ -34,30 +31,20 @@ body {
 
 .hero h1 {
   font-size: 42px;
-  margin-bottom: 5px;
-  background: linear-gradient(90deg, #e0aaff, #9d4edd);
+  background: linear-gradient(90deg,#e0aaff,#9d4edd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 25px rgba(180,90,255,0.8);
 }
 
-.hero p {
-  color: #d0bfff;
-  opacity: 0.9;
-  font-size: 15px;
-}
-
-/* CARD */
-.container {
+.card {
   position: relative;
   z-index: 2;
   max-width: 420px;
   margin: 25px auto;
-  padding: 25px;
+  padding: 20px;
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border-radius: 18px;
-  box-shadow: 0 0 30px rgba(140,0,255,0.35);
   text-align: center;
 }
 
@@ -67,67 +54,18 @@ input, select, button {
   margin: 6px 0;
   border-radius: 10px;
   border: none;
-  font-size: 14px;
-}
-
-input, select {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  outline: none;
 }
 
 button {
-  background: linear-gradient(135deg, #9d4edd, #5a189a);
-  color: white;
+  background: linear-gradient(135deg,#9d4edd,#5a189a);
+  color: #fff;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 15px rgba(180,90,255,0.9);
 }
 
 img {
   width: 100%;
   margin-top: 15px;
   border-radius: 14px;
-  box-shadow: 0 0 20px rgba(160,70,255,0.7);
-}
-
-/* DOCS */
-.docs {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  margin: 60px auto;
-  padding: 25px;
-  background: rgba(0,0,0,0.35);
-  border-radius: 16px;
-  box-shadow: 0 0 25px rgba(160,70,255,0.4);
-}
-
-.docs h2 {
-  color: #e0aaff;
-  margin-bottom: 10px;
-}
-
-.docs code {
-  display: block;
-  background: rgba(255,255,255,0.1);
-  padding: 12px;
-  border-radius: 10px;
-  color: #e0c3ff;
-  overflow-x: auto;
-  margin: 10px 0;
-  font-size: 13px;
-}
-
-.footer {
-  text-align: center;
-  margin-bottom: 30px;
-  opacity: 0.6;
-  font-size: 13px;
 }
 </style>
 </head>
@@ -136,20 +74,17 @@ img {
 
 <div id="particles-js"></div>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Anime Brat Generator</h1>
-  <p>Generate anime holding text image • Scrapable REST API</p>
+  <p>Scrapable REST API</p>
 </div>
 
-<!-- GENERATOR -->
-<div class="container">
-  <input id="text" placeholder="Teks" value="Halo Dunia">
-  <input type="number" id="size" value="32" min="10" max="80">
+<div class="card">
+  <input id="text" value="Halo Dunia">
+  <input id="size" type="number" value="32" min="14" max="72">
 
   <select id="font">
     <option>Arial</option>
-    <option>Comic Sans MS</option>
     <option>Verdana</option>
     <option>Courier New</option>
   </select>
@@ -164,49 +99,16 @@ img {
   <img id="result">
 </div>
 
-<!-- DOCS -->
-<div class="docs">
-  <h2>📘 API Documentation</h2>
-  <p><b>Endpoint:</b></p>
-  <code>GET /api/generate</code>
-
-  <p><b>Query Parameters:</b></p>
-  <code>
-text=Halo Dunia<br>
-size=32<br>
-font=Arial<br>
-template=1
-  </code>
-
-  <p><b>Example Request:</b></p>
-  <code>
-/api/generate?text=HELLO&size=40&font=Arial&template=2
-  </code>
-
-  <p><b>Response:</b></p>
-  <code>Content-Type: image/png</code>
-
-  <p><b>Scrape Example (curl):</b></p>
-  <code>
-curl "http://localhost:3000/api/generate?text=SCRAPE+ME" -o image.png
-  </code>
-</div>
-
-<div class="footer">
-  © Anime Brat Generator • API Ready
-</div>
-
 <script>
 function generate() {
-  const text = encodeURIComponent(textEl.value);
   result.src =
-    `/api/generate?text=${text}` +
+    `/api/generate?text=${encodeURIComponent(text.value)}` +
     `&size=${size.value}` +
     `&font=${font.value}` +
     `&template=${template.value}`;
 }
 
-const textEl = document.getElementById("text");
+const text = document.getElementById("text");
 const size = document.getElementById("size");
 const font = document.getElementById("font");
 const template = document.getElementById("template");
@@ -214,25 +116,12 @@ const result = document.getElementById("result");
 
 particlesJS("particles-js", {
   particles: {
-    number: { value: 90 },
+    number: { value: 80 },
     color: { value: "#b517ff" },
-    shape: { type: "circle" },
-    opacity: { value: 0.6 },
     size: { value: 3 },
-    line_linked: {
-      enable: true,
-      distance: 140,
-      color: "#9d4edd",
-      opacity: 0.4
-    },
-    move: { enable: true, speed: 2 }
-  },
-  interactivity: {
-    events: {
-      onhover: { enable: true, mode: "repulse" }
-    }
-  },
-  retina_detect: true
+    move: { speed: 2 },
+    line_linked: { enable: true, color: "#9d4edd" }
+  }
 });
 </script>
 
